@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "react-native-sticky-parallax-header",
+        "License": "MIT License",
+        "License File": "https://github.com/netguru/sticky-parallax-header/blob/master/LICENSE",
+        "Version Number": "1.1.1",
+        "Owner" : "xiafeng@huawei.com",
+        "Upstream URL": "https://github.com/netguru/sticky-parallax-header",
+        "Description": "sticky parallax header library for react-native"
+    }
+]
