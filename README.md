@@ -1,4 +1,4 @@
-# @react-native-oh-tpl/react-native-sticky-parallax-header
+# @react-native-ohos/react-native-sticky-parallax-header
 
 This project is based on [react-native-sticky-parallax-header](https://github.com/netguru/sticky-parallax-header)
 
