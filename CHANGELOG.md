@@ -1,3 +1,8 @@
+# v1.2.0-rc.1
+
+## Updated content
+* pre-release:@react-native-ohos/react-native-sticky-parallax-header@1.2.0-rc.1
+
 # v1.1.2-rc.1
 ## 更新内容
 * 修改组织名为@react-native-ohos
