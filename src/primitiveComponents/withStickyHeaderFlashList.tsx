@@ -23,7 +23,9 @@ export function withStickyHeaderFlashList<T extends React.ComponentClass<FlashLi
       contentContainerStyle,
       overScrollMode = 'never',
       onScroll,
+	  onScrollBeginDrag,
       onScrollEndDrag,
+	  onMomentumScrollBegin,
       onMomentumScrollEnd,
       onTabsLayout,
       renderHeader,
@@ -44,7 +46,9 @@ export function withStickyHeaderFlashList<T extends React.ComponentClass<FlashLi
       contentContainerStyle,
       sections: [], // is not needed with FlashList
       onMomentumScrollEnd,
+	  onMomentumScrollBegin,
       onScroll,
+	  onScrollBeginDrag,
       onScrollEndDrag,
       onTabsLayout,
     });
