@@ -121,5 +121,8 @@
         }
       ]
     ]
+  },
+  "harmony":{
+    "alias":"react-native-sticky-parallax-header"
   }
 }

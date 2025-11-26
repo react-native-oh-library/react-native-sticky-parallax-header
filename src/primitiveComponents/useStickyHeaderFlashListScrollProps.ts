@@ -28,6 +28,8 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
     onMomentumScrollEnd,
     onScroll,
     onScrollEndDrag,
+	onScrollBeginDrag,
+    onMomentumScrollBegin,
     onTopReached,
     parallaxHeight = responsiveHeight(53),
     snapStartThreshold,
@@ -150,11 +152,27 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
     },
     [onScroll]
   );
+  
+  const onScrollBeginDragInternal = useWorkletCallback(
+    (e: NativeScrollEvent) => {
+      onScrollBeginDrag?.(e);
+    },
+    [onScrollBeginDrag]
+  );
+
+  const onMomentumScrollBeginInternal = useWorkletCallback(
+    (e: NativeScrollEvent) => {
+      onMomentumScrollBegin?.(e);
+    },
+    [onMomentumScrollBegin]
+  );
 
   return {
     onMomentumScrollEnd: onMomentumScrollEndInternal,
     onScroll: onScrollInternal,
     onScrollEndDrag: onScrollEndDragInternal,
+	onScrollBeginDrag: onScrollBeginDragInternal,
+    onMomentumScrollBegin: onMomentumScrollBeginInternal,
     scrollHeight,
     scrollValue,
     scrollViewRef,
