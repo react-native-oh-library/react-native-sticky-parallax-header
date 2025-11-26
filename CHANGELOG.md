@@ -1,3 +1,8 @@
+# v1.2.0-rc.2
+
+## Updated content
+* fix:Fixed the issue where the onScrollBeginDrag and onMomentumScrollBegin events did not execute callbacks when scrolling through FlashList
+
 # v1.2.0-rc.1
 
 ## Updated content
