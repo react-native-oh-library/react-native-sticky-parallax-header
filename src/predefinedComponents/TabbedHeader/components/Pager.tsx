@@ -82,10 +82,10 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
 
     React.useEffect(() => {
       /**
-       * Scroll to make first rendered tab visible (if not used, sometimes when Pager is first rendered, it has blank first tab)
+       * Scroll to initial page when component mounts
        */
-      horizontalFlatListRef.current?.scrollToOffset({ offset: 1, animated: true });
-      horizontalFlatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+      const initialOffset = initialPage * containerWidthRef.current;
+      horizontalFlatListRef.current?.scrollToOffset({ offset: initialOffset, animated: false });
 
       return () => {
         cancelAnimation(scrollToTabPositionTimeoutValue);
