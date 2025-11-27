@@ -1,3 +1,8 @@
+# v1.2.0-rc.3
+
+## Updated content
+* fix:Fix the issue where the initialPage attribute in TabbedHeader is overwritten
+
 # v1.2.0-rc.2
 
 ## Updated content
