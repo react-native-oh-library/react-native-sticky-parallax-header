@@ -30,6 +30,7 @@ export function withStickyHeaderFlashList<T extends React.ComponentClass<FlashLi
       onTabsLayout,
       renderHeader,
       renderTabs,
+      onHeaderLayout,
       scrollEventThrottle = 16,
       ...rest
     } = props;
@@ -51,6 +52,7 @@ export function withStickyHeaderFlashList<T extends React.ComponentClass<FlashLi
 	  onScrollBeginDrag,
       onScrollEndDrag,
       onTabsLayout,
+      onHeaderLayout,
     });
     const flattenContentContainerStyle = React.useMemo(() => {
       return StyleSheet.flatten([
