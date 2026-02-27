@@ -1,3 +1,8 @@
+# v1.2.0-rc.4
+
+## Updated content
+* fix:Fix the issue where the onHeadLayout isn't invoke
+  
 # v1.2.0-rc.3
 
 ## Updated content
