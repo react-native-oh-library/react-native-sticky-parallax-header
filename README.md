@@ -4,9 +4,9 @@ This project is based on [react-native-sticky-parallax-header](https://github.co
 
 ## Documentation
 
-- [中文](https://gitee.com/react-native-oh-library/usage-docs/blob/master/zh-cn/react-native-sticky-parallax-header.md)
+- [中文](https://gitcode.com/OpenHarmony-RN/usage-docs/blob/master/zh-cn/react-native-sticky-parallax-header.md)
 
-- [English](https://gitee.com/react-native-oh-library/usage-docs/blob/master/en/react-native-sticky-parallax-header.md)
+- [English](https://gitcode.com/OpenHarmony-RN/usage-docs/blob/master/en/react-native-sticky-parallax-header.md)
 
 ## License
 
