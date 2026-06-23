@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import {
   Extrapolate,
   interpolate,
+  runOnJS,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -51,20 +52,30 @@ export function useStickyHeaderProps(
 
   const scrollHandler = useAnimatedScrollHandler({
     onBeginDrag: (e) => {
-      onScrollBeginDrag?.(e);
+      if (onScrollBeginDrag) {
+        runOnJS(onScrollBeginDrag)(e);
+      }
     },
     onEndDrag: (e) => {
-      onScrollEndDrag?.(e);
+      if (onScrollEndDrag) {
+        runOnJS(onScrollEndDrag)(e);
+      }
     },
     onMomentumBegin: (e) => {
-      onMomentumScrollBegin?.(e);
+      if (onMomentumScrollBegin) {
+        runOnJS(onMomentumScrollBegin)(e);
+      }
     },
     onMomentumEnd: (e) => {
-      onMomentumScrollEnd?.(e);
+      if (onMomentumScrollEnd) {
+        runOnJS(onMomentumScrollEnd)(e);
+      }
     },
     onScroll: (e) => {
       scrollValue.value = e.contentOffset.y;
-      onScroll?.(e);
+      if (onScroll) {
+        runOnJS(onScroll)(e);
+      }
     },
   });
 

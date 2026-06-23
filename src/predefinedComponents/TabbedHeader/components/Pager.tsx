@@ -69,6 +69,7 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
     const horizontalScrollValue = useSharedValue(initialPage * Dimensions.get('window').width);
 
     const scrollToTabPositionTimeoutValue = useSharedValue(1);
+    const scrollToTabPositionCallId = useSharedValue(0);
 
     const data = React.useMemo(() => {
       return React.Children.toArray(children);
@@ -145,8 +146,8 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
       handleScrollToTabPosition(currentPage, pageNumber);
       runOnUI(scrollToPage)(offset);
 
-      setCurrentPage(page);
-      currentPageRef.current = page;
+      setCurrentPage(pageNumber);
+      currentPageRef.current = pageNumber;
       onChangeTab?.(currentPage, pageNumber);
     }
 
@@ -161,6 +162,8 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
           ? tabsScrollPosition.current[newPage]
           : scrollHeight;
 
+      scrollToTabPositionCallId.value += 1;
+      const callId = scrollToTabPositionCallId.value;
       scrollToTabPositionTimeoutValue.value = withDelay(
         SCROLL_TO_PAGE_OFFSET_TIMEOUT,
         withTiming(
@@ -170,7 +173,9 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
           },
           () => {
             'worklet';
-            scrollToTabPosition(scrollTargetPosition);
+            if (callId === scrollToTabPositionCallId.value) {
+              scrollToTabPosition(scrollTargetPosition);
+            }
           }
         )
       );
@@ -204,7 +209,9 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
     const scrollHandler = useAnimatedScrollHandler({
       onScroll: (e) => {
         horizontalScrollValue.value = e.contentOffset.x;
-        onScroll?.(e);
+        if (onScroll) {
+          runOnJS(onScroll)(e);
+        }
         if (Platform.OS === 'web') {
           // On web there is no onMomentumScrollEnd
           const offsetX = e.contentOffset.x;
@@ -213,16 +220,24 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
         }
       },
       onBeginDrag: (e) => {
-        onScrollBeginDrag?.(e);
+        if (onScrollBeginDrag) {
+          runOnJS(onScrollBeginDrag)(e);
+        }
       },
       onEndDrag: (e) => {
-        onScrollEndDrag?.(e);
+        if (onScrollEndDrag) {
+          runOnJS(onScrollEndDrag)(e);
+        }
       },
       onMomentumBegin: (e) => {
-        onMomentumScrollBegin?.(e);
+        if (onMomentumScrollBegin) {
+          runOnJS(onMomentumScrollBegin)(e);
+        }
       },
       onMomentumEnd: (e) => {
-        onMomentumScrollEnd?.(e);
+        if (onMomentumScrollEnd) {
+          runOnJS(onMomentumScrollEnd)(e);
+        }
         const offsetX = e.contentOffset.x;
 
         runOnJS(handlePossiblePageChange)(offsetX);
@@ -273,9 +288,8 @@ export const Pager = React.forwardRef<PagerMethods, PagerProps & InternalPagerPr
           keyboardDismissMode={keyboardDismissMode}
           onScroll={scrollHandler}
           /**
-           * Workaround for reanimated v2.3+ bug
-           *
-           * https://github.com/software-mansion/react-native-reanimated/issues/2735#issuecomment-1001714779
+           * RNOH compatibility: explicit JS-level callbacks are required
+           * for native ScrollView event routing to properly initialize.
            */
           onMomentumScrollBegin={NOOP}
           onMomentumScrollEnd={NOOP}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { ImageSourcePropType } from 'react-native';
-import { StyleSheet, View, useWindowDimensions,Text} from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import Animated, { useAnimatedStyle,interpolate,Extrapolate} from 'react-native-reanimated';
 
 import { colors } from '../../../constants';
@@ -36,10 +36,10 @@ export const HeaderWrapper: React.FC<React.PropsWithChildren<HeaderWrapperProps>
   const hasBackgroundImage = !!backgroundImage;
   const foregroundAnimatedStyle = useAnimatedStyle(() => {
     if (!hasBorderRadius) {
-      return { borderBottomEndRadius: 0,backgroundColor};
+      return { borderBottomEndRadius: 0, backgroundColor: backgroundColor ?? colors.transparent };
     }
     return {
-      backgroundColor: hasBackgroundImage?colors.transparent:backgroundColor,
+      backgroundColor: hasBackgroundImage ? colors.transparent : (backgroundColor ?? colors.transparent),
       transform:[
         {
           translateY:-scrollValue.value
