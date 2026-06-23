@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { NativeScrollEvent, ScrollView, SectionList, ViewToken } from 'react-native';
 import { Platform } from 'react-native';
-import { runOnJS, useSharedValue, useWorkletCallback } from 'react-native-reanimated';
+import { runOnJS, useSharedValue } from 'react-native-reanimated';
 
 import type { ScrollComponent } from '../../common/SharedProps';
 import { HeaderWrapper } from '../../common/components/HeaderWrapper';
@@ -35,7 +35,7 @@ function useRenderHeader<T extends ScrollComponent>(props: TabbedHeaderPagerProp
     titleTestID,
   } = props;
   const horizontalScrollValue = useSharedValue(0);
-  const onHorizontalPagerScroll = useWorkletCallback((e: NativeScrollEvent) => {
+  const onHorizontalPagerScroll = React.useCallback((e: NativeScrollEvent) => {
     horizontalScrollValue.value = e.contentOffset.x;
   }, []);
 
@@ -156,7 +156,7 @@ export function useTabbedHeaderList<
     scrollValue,
     scrollViewRef,
   } = useRenderHeader<T>(props);
-  const onMomentumScrollEndInternal = useWorkletCallback(
+  const onMomentumScrollEndInternal = React.useCallback(
     (e: NativeScrollEvent) => {
       ignoreViewabilityItemsChangedEvent.value = false;
       onMomentumScrollEnd?.(e);
@@ -166,7 +166,7 @@ export function useTabbedHeaderList<
   const debouncedIgnoreViewabilityItemsChangedCallback = debounce(() => {
     ignoreViewabilityItemsChangedEvent.value = false;
   }, 100);
-  const onScrollInternal = useWorkletCallback(
+  const onScrollInternal = React.useCallback(
     (e: NativeScrollEvent) => {
       if (Platform.OS === 'web') {
         // On web there is no onMomentumScrollEnd

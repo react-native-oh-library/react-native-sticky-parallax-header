@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { NativeScrollEvent, ScrollView } from 'react-native';
 import { View } from 'react-native';
-import Animated, { useAnimatedStyle, useWorkletCallback } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle } from 'react-native-reanimated';
 import type { Edge } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -69,10 +69,12 @@ export const TabbedHeaderPager = React.forwardRef<ScrollView, TabbedHeaderPagerP
       [onChangeTab, setCurrentPage]
     );
 
-    const handleScroll = useWorkletCallback(
+    const handleScroll = React.useCallback(
       (e: NativeScrollEvent) => {
-        onHorizontalPagerScroll(e);
-        pagerProps?.onScroll?.(e);
+        runOnJS(onHorizontalPagerScroll)(e);
+        if (pagerProps?.onScroll) {
+          runOnJS(pagerProps.onScroll)(e);
+        }
       },
       [onHorizontalPagerScroll, pagerProps?.onScroll]
     );
