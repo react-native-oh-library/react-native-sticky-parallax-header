@@ -1,3 +1,6 @@
+# v1.3.0-rc.1
+* pre-release:@react-native-ohos/react-native-sticky-parallax-header@1.3.0-rc.1
+
 # v1.2.0
 * release: @react-native-ohos/react-native-sticky-parallax-header@1.2.0
 
