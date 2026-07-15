@@ -3,7 +3,6 @@ import type { FlatList, NativeScrollEvent, ScrollView, SectionList } from 'react
 import { Platform } from 'react-native';
 import {
   runOnJS,
-  scrollTo,
   useAnimatedReaction,
   useAnimatedRef,
   useSharedValue,
@@ -19,6 +18,50 @@ export type ScrollComponent = ScrollView | FlatList<any> | SectionList<any, any>
 
 const VELOCITY_THRESHOLD = 7;
 
+/**
+ * HarmonyOS: Reanimated `scrollTo` 易闪退；ScrollView 用命令式 scrollTo 可行。
+ * SectionList（TabbedHeaderList）优先走 getScrollResponder().scrollTo，
+ * scrollToOffset 在鸿蒙 SectionList 上常无效果。
+ */
+function scrollListToOffset(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ref: any,
+  offset: number
+) {
+  if (!ref) {
+    return;
+  }
+
+  const responder =
+    (typeof ref.getScrollResponder === 'function' && ref.getScrollResponder()) ||
+    (typeof ref.getNativeScrollRef === 'function' && ref.getNativeScrollRef()) ||
+    null;
+
+  if (responder && typeof responder.scrollTo === 'function') {
+    responder.scrollTo({ animated: true, x: 0, y: offset });
+    return;
+  }
+
+  if (typeof ref.scrollTo === 'function') {
+    ref.scrollTo({ animated: true, x: 0, y: offset });
+    return;
+  }
+
+  if (typeof ref.scrollToOffset === 'function') {
+    ref.scrollToOffset({ animated: true, offset });
+    return;
+  }
+
+  if (offset <= 0 && typeof ref.scrollToLocation === 'function') {
+    ref.scrollToLocation({
+      animated: true,
+      itemIndex: 0,
+      sectionIndex: 0,
+      viewOffset: 0,
+    });
+  }
+}
+
 export function useStickyHeaderScrollProps<T extends ScrollComponent>(
   props: StickyHeaderSharedProps & StickyHeaderSnapProps
 ) {
@@ -33,7 +76,7 @@ export function useStickyHeaderScrollProps<T extends ScrollComponent>(
     parallaxHeight = responsiveHeight(53),
     snapStartThreshold,
     snapStopThreshold,
-    snapToEdge = true,
+    snapToEdge = false,
   } = props;
 
   const scrollValue = useSharedValue(0);
@@ -68,6 +111,14 @@ export function useStickyHeaderScrollProps<T extends ScrollComponent>(
 
   const scrollHeight = Math.max(parallaxHeight, headerHeight * 2);
 
+  const snapToTop = useCallback(() => {
+    scrollListToOffset(scrollViewRef.current, 0);
+  }, [scrollViewRef]);
+
+  const snapToBottom = useCallback(() => {
+    scrollListToOffset(scrollViewRef.current, scrollHeight);
+  }, [scrollHeight, scrollViewRef]);
+
   const onSnapToEdge = useCallback(
     (e: NativeScrollEvent) => {
       const scrollToHeight = snapStopThreshold ?? scrollHeight;
@@ -93,19 +144,25 @@ export function useStickyHeaderScrollProps<T extends ScrollComponent>(
         currentVal >= snapToEdgeThreshold && currentVal < scrollToHeight / 2 && dragsQuickToTop;
 
       if (snapToEdge) {
-        // TODO: when react-native-web will support onMomentumScrollEnd & onScrollEndDrag events
-        // handle web snap scroll
         if (isUnderSnapToEdgeThresholdAndDragIsSlow || isOverSnapToEdgeThresholdAndDragIsQuick) {
-          scrollTo(scrollViewRef, 0, 0, true);
+          snapToTop();
         } else if (
           isOverSnapToEdgeThresholdAndDragIsSlow ||
           isUnderSnapToEdgeThresholdAndDragIsQuick
         ) {
-          scrollTo(scrollViewRef, 0, scrollHeight, true);
+          snapToBottom();
         }
       }
     },
-    [snapStartThreshold, snapStopThreshold, scrollHeight, scrollValue]
+    [
+      snapStartThreshold,
+      snapStopThreshold,
+      snapToBottom,
+      snapToTop,
+      snapToEdge,
+      scrollHeight,
+      scrollValue,
+    ]
   );
 
   const onMomentumScrollEndInternal = useCallback(
@@ -119,10 +176,18 @@ export function useStickyHeaderScrollProps<T extends ScrollComponent>(
   const onScrollEndDragInternal = useCallback(
     (e: NativeScrollEvent) => {
       onScrollEndDrag?.(e);
-      if (Platform.OS === 'android' || Math.abs(e.velocity?.y ?? 0) > 0) {
+      // android：只走 onMomentumScrollEnd
+      if (Platform.OS === 'android') {
         return;
       }
-
+      // harmony：SectionList 常不触发 / 不可靠 onMomentumScrollEnd，拖拽结束也做吸附
+      if (Platform.OS === 'harmony') {
+        onSnapToEdge(e);
+        return;
+      }
+      if (Math.abs(e.velocity?.y ?? 0) > 0) {
+        return;
+      }
       onSnapToEdge(e);
     },
     [onScrollEndDrag, onSnapToEdge]

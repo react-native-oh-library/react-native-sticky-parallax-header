@@ -27,13 +27,13 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
     onMomentumScrollEnd,
     onScroll,
     onScrollEndDrag,
-	onScrollBeginDrag,
+    onScrollBeginDrag,
     onMomentumScrollBegin,
     onTopReached,
     parallaxHeight = responsiveHeight(53),
     snapStartThreshold,
     snapStopThreshold,
-    snapToEdge = true,
+    snapToEdge = false,
   } = props;
 
   const scrollValue = useSharedValue(0);
@@ -104,12 +104,12 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
         // TODO: when react-native-web will support onMomentumScrollEnd & onScrollEndDrag events
         // handle web snap scroll
         if (isUnderSnapToEdgeThresholdAndDragIsSlow || isOverSnapToEdgeThresholdAndDragIsQuick) {
-          runOnJS(snapToTop)();
+          snapToTop();
         } else if (
           isOverSnapToEdgeThresholdAndDragIsSlow ||
           isUnderSnapToEdgeThresholdAndDragIsQuick
         ) {
-          runOnJS(snapToBottom)();
+          snapToBottom();
         }
       }
     },
@@ -135,7 +135,12 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
   const onScrollEndDragInternal = useCallback(
     (e: NativeScrollEvent) => {
       onScrollEndDrag?.(e);
-      if (Platform.OS === 'android' || Math.abs(e.velocity?.y ?? 0) > 0) {
+      // 与 ScrollView 路径一致：android/harmony 吸附只走 onMomentumScrollEnd，避免双重吸附卡顿
+      if (
+        Platform.OS === 'android' ||
+        Platform.OS === 'harmony' ||
+        Math.abs(e.velocity?.y ?? 0) > 0
+      ) {
         return;
       }
 
@@ -151,7 +156,7 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
     },
     [onScroll]
   );
-  
+
   const onScrollBeginDragInternal = useCallback(
     (e: NativeScrollEvent) => {
       onScrollBeginDrag?.(e);
@@ -170,7 +175,7 @@ export function useStickyHeaderFlashListScrollProps<T extends FlashList<any> = F
     onMomentumScrollEnd: onMomentumScrollEndInternal,
     onScroll: onScrollInternal,
     onScrollEndDrag: onScrollEndDragInternal,
-	onScrollBeginDrag: onScrollBeginDragInternal,
+    onScrollBeginDrag: onScrollBeginDragInternal,
     onMomentumScrollBegin: onMomentumScrollBeginInternal,
     scrollHeight,
     scrollValue,

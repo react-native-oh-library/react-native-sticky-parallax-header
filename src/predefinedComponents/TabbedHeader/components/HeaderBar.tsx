@@ -6,9 +6,9 @@ import type {
   StyleProp,
   ViewStyle,
 } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
-import type { Edge } from 'react-native-safe-area-context';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { commonStyles } from '../../../constants';
 import type { AnimatedColorProp } from '../../common/SharedProps';
@@ -23,6 +23,14 @@ interface HeaderBarProps {
   logoStyle?: StyleProp<Animated.AnimateStyle<ImageStyle>>;
 }
 
+function useTopInsetPadding(enableSafeAreaTopInset?: boolean) {
+  const insets = useSafeAreaInsets();
+  if (!enableSafeAreaTopInset) {
+    return 0;
+  }
+  return insets.top > 0 ? insets.top : StatusBar.currentHeight ?? 48;
+}
+
 export const HeaderBar: React.FC<HeaderBarProps> = ({
   backgroundColor,
   enableSafeAreaTopInset,
@@ -33,26 +41,36 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
 }) => {
   const wrapperAnimatedStyle = useAnimatedStyle(() => {
     return {
-      // TypeScript complains about AnimatedNode<StyleProp<ViewStyle>> from reanimated v1
       backgroundColor: parseAnimatedColorProp(backgroundColor) as string,
     };
   }, [backgroundColor]);
-  const safeAreaEdges: Edge[] = ['left', 'right'];
 
-  if (enableSafeAreaTopInset) {
-    safeAreaEdges.push('top');
-  }
+  const topPadding = useTopInsetPadding(enableSafeAreaTopInset);
 
   return (
-    // @ts-ignore
-    <SafeAreaView edges={safeAreaEdges} style={commonStyles.container}>
-      <Animated.View style={[commonStyles.headerWrapper, logoContainerStyle, wrapperAnimatedStyle]}>
-        <Animated.Image
-          resizeMode={logoResizeMode}
-          source={logo}
-          style={[commonStyles.logo, logoStyle]}
-        />
-      </Animated.View>
-    </SafeAreaView>
+    <Animated.View style={[styles.bar, wrapperAnimatedStyle, { paddingTop: topPadding }]}>
+      <SafeAreaView edges={['left', 'right']} style={styles.safeArea}>
+        <View style={[commonStyles.headerWrapper, logoContainerStyle as ViewStyle]}>
+          <Animated.Image
+            resizeMode={logoResizeMode}
+            source={logo}
+            style={[commonStyles.logo, logoStyle]}
+          />
+        </View>
+      </SafeAreaView>
+    </Animated.View>
   );
 };
+
+const styles = StyleSheet.create({
+  bar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  safeArea: {
+    alignSelf: 'stretch',
+  },
+});
