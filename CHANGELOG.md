@@ -1,3 +1,6 @@
+# v1.3.0-rc.2
+* fix：修复enableSafeAreaToplnset和 snapStartThreshold属性无效问题（[#21](https://github.com/react-native-oh-library/react-native-sticky-parallax-header/pull/21)）
+
 # v1.3.0-rc.1
 * pre-release:@react-native-ohos/react-native-sticky-parallax-header@1.3.0-rc.1
 
