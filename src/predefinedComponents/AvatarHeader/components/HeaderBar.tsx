@@ -1,9 +1,8 @@
 import * as React from 'react';
 import type { ImageSourcePropType, StyleProp, TextStyle, ViewStyle } from 'react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StatusBar, StyleSheet, View } from 'react-native';
 import Animated, { Extrapolate, interpolate, useAnimatedStyle } from 'react-native-reanimated';
-import type { Edge } from 'react-native-safe-area-context';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors, commonStyles } from '../../../constants';
 import type { AnimatedColorProp, IconProps } from '../../common/SharedProps';
@@ -91,15 +90,17 @@ export const HeaderBar: React.FC<HeaderProps> = ({
     };
   }, [backgroundColor]);
 
-  const safeAreaEdges: Edge[] = ['left', 'right'];
-
-  if (enableSafeAreaTopInset) {
-    safeAreaEdges.push('top');
-  }
+  const insets = useSafeAreaInsets();
+  const topPadding = enableSafeAreaTopInset
+    ? insets.top > 0
+      ? insets.top
+      : StatusBar.currentHeight ?? 48
+    : 0;
 
   return (
-    <SafeAreaView edges={safeAreaEdges} style={commonStyles.container}>
-      <Animated.View style={[commonStyles.headerWrapper, wrapperAnimatedStyle]}>
+    <Animated.View style={[styles.bar, wrapperAnimatedStyle, { paddingTop: topPadding }]}>
+      <SafeAreaView edges={['left', 'right']} style={styles.safeArea}>
+        <View style={commonStyles.headerWrapper}>
         {leftTopIcon ? (
           <Pressable
             accessibilityLabel={leftTopIconAccessibilityLabel}
@@ -135,12 +136,23 @@ export const HeaderBar: React.FC<HeaderProps> = ({
             <IconRenderer icon={rightTopIcon} />
           </Pressable>
         ) : null}
-      </Animated.View>
-    </SafeAreaView>
+        </View>
+      </SafeAreaView>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
+  bar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  safeArea: {
+    alignSelf: 'stretch',
+  },
   headerPic: {
     width: 32,
     height: 32,
